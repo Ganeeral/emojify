@@ -1,0 +1,199 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+  font-family: Inter;
+  src: url(./fonts/Inter.ttf) format('truetype');
+}
+
+@font-face {
+  font-family: ProductSans;
+  src: url(./fonts/ProductSans-Bold.ttf) format('truetype');
+}
+
+::-webkit-scrollbar {
+  width: 0px;
+}
+
+input[type="search"]::-webkit-search-decoration,
+input[type="search"]::-webkit-search-cancel-button,
+input[type="search"]::-webkit-search-results-button,
+input[type="search"]::-webkit-search-results-decoration {
+  display: none;
+}
+
+
+::placeholder {
+  background: linear-gradient(90.00deg, rgb(89, 125, 204), rgb(232, 225, 173));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+body {
+  color: white;
+  background: #000;
+  background-image: url('data:image/svg+xml,<svg width="1920" height="1070" xmlns="http://www.w3.org/2000/svg"><g opacity="0.3"><path d="M1894.38 1069.09V0.139648" stroke="%23727272" stroke-dasharray="6 6"/><path d="M1828.33 1069.09V0.139648" stroke="%23727272" stroke-dasharray="6 6"/><path d="M1762.27 1069.09V0.139648" stroke="%23727272" stroke-dasharray="6 6"/><path d="M1696.22 1069.09V0.139648" stroke="%23727272" stroke-dasharray="6 6"/><path d="M1630.16 1069.09V0.139648" stroke="%23727272" stroke-dasharray="6 6"/><path d="M1564.09 1069.09V0.139648" stroke="%23727272" stroke-dasharray="6 6"/><path d="M1498.04 1069.09V0.139648" stroke="%23727272" stroke-dasharray="6 6"/><path d="M1431.98 1069.09V0.139648" stroke="%23727272" stroke-dasharray="6 6"/><path d="M1365.93 1069.09V0.139648" stroke="%23727272" stroke-dasharray="6 6"/><path d="M1299.87 1069.09V0.139648" stroke="%23727272" stroke-dasharray="6 6"/><path d="M1233.81 1069.09V0.139648" stroke="%23727272" stroke-dasharray="6 6"/><path d="M1167.76 1069.09V0.139648" stroke="%23727272" stroke-dasharray="6 6"/><path d="M1101.69 1069.09V0.139648" stroke="%23727272" stroke-dasharray="6 6"/><path d="M1035.63 1069.09V0.139648" stroke="%23727272" stroke-dasharray="6 6"/><path d="M969.541 1069.1V0.155273" stroke="%23727272" stroke-dasharray="6 6"/><path d="M903.484 1069.1V0.155273" stroke="%23727272" stroke-dasharray="6 6"/><path d="M837.424 1069.1V0.155273" stroke="%23727272" stroke-dasharray="6 6"/><path d="M771.368 1069.1V0.155273" stroke="%23727272" stroke-dasharray="6 6"/><path d="M705.312 1069.1V0.155273" stroke="%23727272" stroke-dasharray="6 6"/><path d="M639.251 1069.1V0.155273" stroke="%23727272" stroke-dasharray="6 6"/><path d="M573.195 1069.1V0.155273" stroke="%23727272" stroke-dasharray="6 6"/><path d="M507.13 1069.1L507.132 0.155273" stroke="%23727272" stroke-dasharray="6 6"/><path d="M441.078 1069.1V0.155273" stroke="%23727272" stroke-dasharray="6 6"/><path d="M375.028 1069.1V0.155273" stroke="%23727272" stroke-dasharray="6 6"/><path d="M308.958 1069.1L308.959 0.155273" stroke="%23727272" stroke-dasharray="6 6"/><path d="M242.897 1069.1V0.155273" stroke="%23727272" stroke-dasharray="6 6"/><path d="M176.841 1069.1V0.155273" stroke="%23727272" stroke-dasharray="6 6"/><path d="M110.785 1069.1L110.785 0.155273" stroke="%23727272" stroke-dasharray="6 6"/><path d="M44.7373 1069.1L44.7374 0.155273" stroke="%23727272" stroke-dasharray="6 6"/><path d="M0.51709 1022.78L2073.42 1022.78" stroke="%23727272" stroke-dasharray="6 6"/><path d="M0.51709 957.6H2073.42" stroke="%23727272" stroke-dasharray="6 6"/><path d="M0.51709 892.419H2073.42" stroke="%23727272" stroke-dasharray="6 6"/><path d="M0.51709 827.238L2073.42 827.24" stroke="%23727272" stroke-dasharray="6 6"/><path d="M0.51709 762.059H2073.42" stroke="%23727272" stroke-dasharray="6 6"/><path d="M0.51709 696.881H2073.42" stroke="%23727272" stroke-dasharray="6 6"/><path d="M0.51709 631.697L2073.42 631.699" stroke="%23727272" stroke-dasharray="6 6"/><path d="M0.51709 566.519H2073.42" stroke="%23727272" stroke-dasharray="6 6"/><path d="M0.51709 501.34H2073.42" stroke="%23727272" stroke-dasharray="6 6"/><path d="M0.51709 436.159L2073.42 436.161" stroke="%23727272" stroke-dasharray="6 6"/><path d="M0.51709 370.98H2073.42" stroke="%23727272" stroke-dasharray="6 6"/><path d="M0.51709 305.803H2073.42" stroke="%23727272" stroke-dasharray="6 6"/><path d="M0.51709 240.622L2073.42 240.623" stroke="%23727272" stroke-dasharray="6 6"/><path d="M0.51709 175.442H2073.42" stroke="%23727272" stroke-dasharray="6 6"/><path d="M0.51709 110.262L2073.42 110.262" stroke="%23727272" stroke-dasharray="6 6"/><path d="M0.516602 45.084L2073.42 45.0842" stroke="%23727272" stroke-dasharray="6 6"/></g></svg>');
+  background-size: cover;
+  font-family: ProductSans;
+  background-attachment: fixed;
+}
+
+
+html {
+  scroll-behavior: smooth;
+  min-width: 320px;
+  height: 100%;
+  margin: 0 !important;
+  padding: 0;
+}
+
+.clamp-title {
+  font-size: clamp(3rem, 10vw, 9.25rem);
+  text-align: center;
+}
+.clamp-Logo {
+  font-size: clamp(3rem, 10vw, 9.75rem);
+  text-align: center;
+}
+
+.clamp-subtitle {
+  font-size: clamp(2rem, 10vw, 3.375rem);
+  text-align: center;
+}
+
+.clamp-text {
+  font-size: clamp(2rem, 10vw, 4.5rem);
+  text-align: center;
+}
+
+.gradientText {
+  background: linear-gradient(90.00deg, rgb(89, 125, 204), rgb(232, 225, 173));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.gradientTextAnimation {
+  background: linear-gradient(90.00deg, rgb(89, 125, 204), rgb(89, 125, 204), rgb(232, 225, 173), rgb(232, 225, 173));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-size: 400% 400%;
+  background-clip: text;
+   animation: gradientShift 3s infinite linear;
+   transform: translate3d(0, 0, 0);
+}
+
+.animate-gradient {
+  animation: gradientShift 3s infinite linear;
+}
+
+@keyframes gradientShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+
+.gradientTitle {
+  background: linear-gradient(11.95deg, rgb(77, 123, 212), rgb(232, 225, 173));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.bgGradient::after {
+  background: linear-gradient(90.00deg, rgb(255, 255, 255), rgb(29, 115, 243) 129.612%);
+}
+
+.backgroundAuth {
+  backdrop-filter: blur(9.5px);
+  background: rgba(0, 0, 0, 0.4);
+}
+
+.gradientNumber {
+  background: linear-gradient(11.95deg, rgb(77, 123, 212), rgb(232, 225, 173));
+  -webkit-background-clip:
+    text;
+  -webkit-text-fill-color:
+    transparent;
+  background-clip:
+    text;
+}
+
+.Inter {
+  font-family: Inter;
+}
+
+.productSans {
+  font-family: ProductSans;
+}
+
+#about,
+#work,
+#demo {
+  scroll-margin-top: 160px;
+}
+
+.loader {
+  width: fit-content;
+  font-size: 40px;
+  color: #597dcc;
+  font-weight: bold;
+  font-family: monospace;
+  -webkit-text-stroke: 0.2px #ffffff;
+  --g: linear-gradient(to right, #597dcc, #597dcc) no-repeat text;
+  background: var(--g) 0, var(--g) 1ch, var(--g) 2ch, var(--g) 3ch, var(--g) 4ch, var(--g) 5ch, var(--g) 6ch, var(--g) 7ch, var(--g) 8ch, var(--g) 9ch;
+  background-position-y: 100%;
+  background-clip: text;
+  color: transparent;
+  animation: gradientFill 3.5s linear infinite alternate;
+}
+
+.loader:before {
+  content: "Emojify AI";
+}
+
+@keyframes gradientFill {
+  0% {
+    background-size: 1ch 0, 1ch 0, 1ch 0, 1ch 0, 1ch 0, 1ch 0, 1ch 0;
+  }
+
+  25% {
+    background-size: 1ch 100%, 1ch 50%, 1ch 0, 1ch 0, 1ch 0, 1ch 50%, 1ch 100%;
+  }
+
+  50% {
+    background-size: 1ch 100%, 1ch 100%, 1ch 50%, 1ch 0, 1ch 50%, 1ch 100%, 1ch 100%;
+  }
+
+  75% {
+    background-size: 1ch 100%, 1ch 100%, 1ch 100%, 1ch 50%, 1ch 100%, 1ch 100%, 1ch 100%;
+  }
+
+  100% {
+    background-size: 1ch 100%, 1ch 100%, 1ch 100%, 1ch 100%, 1ch 100%, 1ch 100%, 1ch 100%;
+  }
+}
+
+@keyframes slideDown {
+  0% {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-slideDown {
+  animation: slideDown 0.3s ease-out forwards;
+}
