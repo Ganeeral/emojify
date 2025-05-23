@@ -12,7 +12,7 @@ app.use(bodyParser.json());
 const openai = new OpenAI({
   baseURL: "https://openrouter.ai/api/v1",
   apiKey:
-    "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",
+    "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",
   // defaultHeaders: {
   //   'HTTP-Referer': '<YOUR_SITE_URL>', // Optional. Site URL for rankings on openrouter.ai.
   //   'X-Title': '<YOUR_SITE_NAME>', // Optional. Site title for rankings on openrouter.ai.
