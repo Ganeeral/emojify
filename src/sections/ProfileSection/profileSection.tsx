@@ -61,18 +61,18 @@ const ProfileSection = () => {
       });
   }, []);
 
-  if (!profile) return <p>Загрузка...</p>;
+  // if (!profile) return <p>Загрузка...</p>;
 
   return (
     <div className="grid gap-y-12 mx-auto w-full max-w-[1070px] px-4">
       <div className="grid bg-[#0D0D0D] rounded-xl p-6 w-full grid-cols-1 sm:grid-cols-[1fr_auto] items-center gap-y-4 sm:gap-y-0">
         <div className="flex items-center gap-x-5">
           <div className="h-[74px] w-[74px] flex justify-center items-center text-3xl rounded-full text-white bg-sky-600">
-            {profile.name.charAt(0).toUpperCase()}
+            {profile?.name.charAt(0).toUpperCase()}
           </div>
-          <div className="flex flex-col gap-y-1">
+          <div className="flex flex-col gap-y-1 items-start">
             <span className="text-2xl text-[#B0B0B0] Inter font-semibold">
-              {profile.name}
+              {profile?.name}
             </span>
             <button
               onClick={() => setShowModal(true)}
@@ -92,7 +92,7 @@ const ProfileSection = () => {
 
       {showModal && (
         <EditProfileModal
-          currentName={profile.name}
+          currentName={profile?.name || ""}
           onClose={() => setShowModal(false)}
           onUpdate={updateProfileName}
         />
@@ -133,7 +133,9 @@ const ProfileSection = () => {
             })}
           </div>
         ) : (
-          <p className="text-[#BEBEBE]">Нет доступных сцен для отображения.</p>
+          <p className="text-[#BEBEBE] Inter">
+            Нет доступных сцен для отображения.
+          </p>
         )}
       </div>
     </div>

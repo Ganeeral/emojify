@@ -12,7 +12,7 @@ app.use(bodyParser.json());
 const openai = new OpenAI({
   baseURL: "https://openrouter.ai/api/v1",
   apiKey:
-    "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",
+    "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",
   // defaultHeaders: {
   //   'HTTP-Referer': '<YOUR_SITE_URL>', // Optional. Site URL for rankings on openrouter.ai.
   //   'X-Title': '<YOUR_SITE_NAME>', // Optional. Site title for rankings on openrouter.ai.
@@ -47,7 +47,7 @@ app.post("/analyze", async (req, res) => {
     const aiResponse = result.choices[0].message.content.trim();
 
     res.json({ emotion: aiResponse });
-  } catch (error) {
+  } catch {
     res.status(500).json({ error: "Failed to analyze scene" });
   }
 });
