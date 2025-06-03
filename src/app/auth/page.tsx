@@ -104,7 +104,7 @@ const LoginPage: React.FC = () => {
   };
 
   return (
-    <div className="flex relative justify-center items-center">
+    <div className="flex relative justify-center items-center h-full">
       <div className="absolute clamp-Logo gradientText">Анимоджи</div>
       <div className="min-w-[300px] my-10 max-w-[670px] w-full flex flex-col gap-y-4 mx-2">
         <div className="rounded-[36px] backgroundAuth p-4 flex flex-col gap-y-8">
