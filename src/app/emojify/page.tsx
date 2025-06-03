@@ -146,38 +146,55 @@ const Page = () => {
 
             {/* 🔀 Toggle */}
             <div className="flex items-center justify-center mt-6">
-              <div className="flex  gap-4 bg-[#1A1A1A] p-2 rounded-[999px]">
+              <div className="relative flex gap-4 bg-[#1A1A1A] p-2 rounded-[999px]">
+                {/* Animated background toggle indicator */}
+                <motion.div
+                  layout
+                  layoutId="toggleBackground"
+                  transition={{ type: "spring", stiffness: 400, damping: 50 }}
+                  className="absolute top-2 bottom-2 left-0 w-1/2 rounded-[999px] gradientBG z-0"
+                  style={{
+                    left: mode === "animation" ? "8px" : "calc(50%",
+                    width: "calc(50% - 8px)",
+                  }}
+                />
+
                 <button
                   onClick={() => setMode("animation")}
-                  className={`px-6 py-2 rounded-[999px] font-bold ${
-                    mode === "animation"
-                      ? "gradientBG text-[#1A1A1A] Inter font-bold"
-                      : "text-[#AFAFAF] Inter font-bold"
+                  className={`relative z-10 px-6 py-2 rounded-[999px] Inter font-bold transition-colors duration-300 ${
+                    mode === "animation" ? "text-[#1A1A1A]" : "text-[#AFAFAF]"
                   }`}
                 >
                   Генерация эмоции
                 </button>
                 <button
                   onClick={() => setMode("image")}
-                  className={`px-6 py-2 rounded-[999px] font-bold ${
-                    mode === "image"
-                      ? "gradientBG text-[#1A1A1A] Inter font-bold"
-                      : "text-[#AFAFAF] Inter font-bold"
+                  className={`relative z-10 px-6 py-2 rounded-[999px] Inter font-bold transition-colors duration-300 ${
+                    mode === "image" ? "text-[#1A1A1A]" : "text-[#AFAFAF]"
                   }`}
                 >
                   Генерация картинки
                 </button>
               </div>
-              {mode === "image" && (
-                <div className=" flex justify-center">
-                  <button
-                    onClick={() => setIsModalOpen(true)}
-                    className="px-4 py-2 rounded"
+
+              <AnimatePresence>
+                {mode === "image" && (
+                  <motion.div
+                    className="flex justify-center ml-4"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.3 }}
                   >
-                    <SettingsIcon />
-                  </button>
-                </div>
-              )}
+                    <button
+                      onClick={() => setIsModalOpen(true)}
+                      className="px-4 py-2 rounded"
+                    >
+                      <SettingsIcon />
+                    </button>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
 
             {/* 🎯 Form */}

@@ -109,7 +109,7 @@ const ImageOptionsModal: FC<ImageOptionsModalProps> = ({
                     onSave({ width, height, style });
                     onClose();
                   }}
-                  className="px-4 py-2 bg-[#FFD580] text-black rounded Inter font-bold hover:bg-[#e6c36f]"
+                  className="px-4 py-2 bg-[#555]  text-white rounded Inter font-bold hover:bg-[#666]"
                 >
                   Сохранить
                 </button>
