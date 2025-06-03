@@ -139,12 +139,12 @@ const LoginPage: React.FC = () => {
                   onBlur={validateEmail}
                   type="email"
                   className={cn(
-                    "border placeholder:text-searchText placeholder:text-base divide-solid border-[#666666] bg-inherit h-[56px] rounded-xl outline-none px-2 text-searchText text-xl w-full",
+                    "border placeholder:text-searchText Inter placeholder:text-base divide-solid border-[#666666] bg-inherit h-[56px] rounded-xl outline-none px-2 text-searchText text-xl w-full",
                     { "border-red-500": emailError }
                   )}
                 />
                 {emailError && (
-                  <p className="text-red-500 text-xs">{emailError}</p>
+                  <p className="text-red-500 Inter text-xs">{emailError}</p>
                 )}
               </div>
               <div className="flex flex-col gap-y-3 max-w-[528px] w-full">
@@ -162,19 +162,19 @@ const LoginPage: React.FC = () => {
                   onChange={handlePasswordChange}
                   onBlur={validatePassword}
                   className={cn(
-                    "border placeholder:text-searchText placeholder:text-base divide-solid border-[#666666] bg-inherit h-[56px] rounded-xl outline-none px-2 text-searchText text-xl w-full",
+                    "border placeholder:text-searchText Inter placeholder:text-base divide-solid border-[#666666] bg-inherit h-[56px] rounded-xl outline-none px-2 text-searchText text-xl w-full",
                     { "border-red-500": passwordError }
                   )}
                 />
                 {passwordError && (
-                  <p className="text-red-500 text-xs">{passwordError}</p>
+                  <p className="text-red-500 Inter text-xs">{passwordError}</p>
                 )}
               </div>
               <div className="flex flex-col gap-y-4">
                 <button
                   type="submit"
                   className={cn(
-                    "w-full Inter font-bold text-xl leading-5 rounded-[40px] p-5 bg-blacked text-white duration-300 hover:bg-searchText",
+                    "w-full Inter font-bold Inter text-xl leading-5 rounded-[40px] p-5 bg-blacked text-white duration-300 hover:bg-searchText",
                     { "opacity-50 cursor-not-allowed": !formIsValid }
                   )}
                   disabled={!formIsValid}

@@ -190,15 +190,15 @@ const RegistrPage: React.FC = () => {
                   onBlur={validateUsername}
                   type="text"
                   className={cn(
-                    "border placeholder:text-searchText placeholder:text-base divide-solid border-[#666666] bg-inherit h-[56px] rounded-xl outline-none px-2 text-searchText text-xl w-full",
+                    "border placeholder:text-searchText Inter placeholder:text-base divide-solid border-[#666666] bg-inherit h-[56px] rounded-xl outline-none px-2 text-searchText text-xl w-full",
                     { "border-red-500": usernameError || usernameExistsError }
                   )}
                 />
                 {usernameError && (
-                  <p className="text-red-500 text-xs">{usernameError}</p>
+                  <p className="text-red-500 Inter text-xs">{usernameError}</p>
                 )}
                 {usernameExistsError && (
-                  <p className="text-red-500 text-xs">{usernameExistsError}</p>
+                  <p className="text-red-500 Inter text-xs">{usernameExistsError}</p>
                 )}
               </div>
               <div className="flex flex-col gap-y-3 max-w-[528px] w-full">
@@ -228,12 +228,12 @@ const RegistrPage: React.FC = () => {
                   onChange={handlePasswordChange}
                   onBlur={validatePassword}
                   className={cn(
-                    "border placeholder:text-searchText placeholder:text-base divide-solid border-[#666666] bg-inherit h-[56px] rounded-xl outline-none px-2 text-searchText text-xl w-full",
+                    "border placeholder:text-searchText Inter placeholder:text-base divide-solid border-[#666666] bg-inherit h-[56px] rounded-xl outline-none px-2 text-searchText text-xl w-full",
                     { "border-red-500": passwordError }
                   )}
                 />
                 {passwordError && (
-                  <p className="text-red-500 text-xs">{passwordError}</p>
+                  <p className="text-red-500 Inter text-xs">{passwordError}</p>
                 )}
               </div>
               <div className="flex flex-col gap-y-3 max-w-[528px] w-full">
@@ -251,12 +251,12 @@ const RegistrPage: React.FC = () => {
                   onChange={handleRepeatPasswordChange}
                   onBlur={validateRepeatPassword}
                   className={cn(
-                    "border placeholder:text-searchText placeholder:text-base divide-solid border-[#666666] bg-inherit h-[56px] rounded-xl outline-none px-2 text-searchText text-xl w-full",
+                    "border placeholder:text-searchText Inter placeholder:text-base divide-solid border-[#666666] bg-inherit h-[56px] rounded-xl outline-none px-2 text-searchText text-xl w-full",
                     { "border-red-500": repeatPasswordError }
                   )}
                 />
                 {repeatPasswordError && (
-                  <p className="text-red-500 text-xs">{repeatPasswordError}</p>
+                  <p className="text-red-500 Inter text-xs">{repeatPasswordError}</p>
                 )}
               </div>
               <div className="flex flex-col gap-y-4">
