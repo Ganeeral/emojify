@@ -15,14 +15,14 @@ export default function Home() {
   const [isDemoVisible, setIsDemoVisible] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [activeSection, setActiveSection] = useState("preview");
-  const { push } = useRouter();
+  // const { push } = useRouter();
 
-  useEffect(() => {
-    const token = localStorage.getItem("authToken");
-    if (token) {
-      push("/emojify");
-    }
-  }, [push]);
+  // useEffect(() => {
+  //   const token = localStorage.getItem("authToken");
+  //   if (token) {
+  //     push("/emojify");
+  //   }
+  // }, [push]);
 
   const previewRef = useRef(null);
   const aboutRef = useRef(null);
