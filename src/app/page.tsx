@@ -7,7 +7,7 @@ import { AboutSection } from "@/sections/AboutSection/aboutSection";
 import PreviewSection from "@/sections/PreviewSection/previewSection";
 import WorkSection from "@/sections/WorkSection/workSection";
 import DemoSection from "@/sections/DemoSection/demoSection";
-import { useRouter } from "next/navigation";
+// import { useRouter } from "next/navigation";
 
 export default function Home() {
   const [isAboutVisible, setIsAboutVisible] = useState(false);
