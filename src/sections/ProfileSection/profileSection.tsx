@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import EditProfileModal from "@/components/EditProfileModal/EditProfileModal";
@@ -9,12 +9,14 @@ import { LoadIcon } from "@/ui/icons";
 import { AnimatePresence, motion } from "framer-motion"; // Добавь framer-motion
 
 import { getImageForEmotion } from "@/utils/emotionGeneration";
+import { toast } from "react-toastify";
 
 interface ProfileData {
   id: number;
   name: string;
   email: string;
   avatar: string;
+  subscription_expires: string;
 }
 
 interface SavedImage {
@@ -48,6 +50,9 @@ const ProfileSection = () => {
   const [showModal, setShowModal] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
+  const [isSubModalOpen, setIsSubModalOpen] = useState(false);
+  const [purchasing, setPurchasing] = useState(false);
+
   const { push } = useRouter();
 
   const handleLogout = () => {
@@ -62,17 +67,25 @@ const ProfileSection = () => {
   };
 
   // Запрос профиля
-  useEffect(() => {
+  const fetchProfile = useCallback(async () => {
     const token = localStorage.getItem("authToken");
     setLoadingProfile(true);
-    axios
-      .get("https://emojify-backend.cloudpub.ru/profile", {
-        headers: { Authorization: `Bearer ${token}` },
-      })
-      .then((response) => setProfile(response.data))
-      .catch(() => push("/"))
-      .finally(() => setLoadingProfile(false));
+    try {
+      const { data } = await axios.get<ProfileData>(
+        "https://emojify-backend.cloudpub.ru/profile",
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setProfile(data);
+    } catch {
+      push("/");
+    } finally {
+      setLoadingProfile(false);
+    }
   }, [push]);
+
+  useEffect(() => {
+    fetchProfile();
+  }, [fetchProfile]);
 
   // Запрос изображений
   useEffect(() => {
@@ -91,6 +104,38 @@ const ProfileSection = () => {
       .catch(() => setSavedImages([]))
       .finally(() => setLoadingImages(false));
   }, [profile]);
+
+  const handlePurchase = async (days: number) => {
+    if (purchasing) return;
+    setPurchasing(true);
+    const token = localStorage.getItem("authToken");
+    try {
+      const res = await fetch(
+        "https://emojify-backend.cloudpub.ru/purchase-subscription",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ days }),
+        }
+      );
+      if (!res.ok) throw new Error();
+      const data = await res.json();
+      toast.success(
+        `Премиум активирован до ${new Date(
+          data.expires_at
+        ).toLocaleDateString()}`
+      );
+      setIsSubModalOpen(false);
+      await fetchProfile();
+    } catch {
+      toast.error("Не удалось оформить подписку");
+    } finally {
+      setPurchasing(false);
+    }
+  };
 
   // Запрос сцен
   useEffect(() => {
@@ -120,30 +165,56 @@ const ProfileSection = () => {
           <div className="h-8 w-20 bg-[#2A2A2A] rounded-md sm:justify-self-end" />
         </div>
       ) : (
-        <div className="grid bg-[#0D0D0D] rounded-xl p-6 w-full grid-cols-1 sm:grid-cols-[1fr_auto] items-center gap-y-4 sm:gap-y-0">
-          <div className="flex items-center gap-x-5">
-            <div className="h-[74px] w-[74px] flex justify-center items-center text-3xl rounded-full text-white bg-sky-600">
-              {profile?.name.charAt(0).toUpperCase()}
-            </div>
-            <div className="flex flex-col gap-y-1 items-start">
-              <span className="text-2xl text-[#B0B0B0] Inter font-semibold">
-                {profile?.name}
-              </span>
+        <>
+          <div className="bg-[#0D0D0D] rounded-xl p-6 w-full">
+            <div className="grid  grid-cols-1 sm:grid-cols-[1fr_auto] items-center gap-y-4 sm:gap-y-0">
+              <div className="flex items-center gap-x-5">
+                <div className="h-[74px] w-[74px] flex justify-center items-center text-3xl rounded-full text-white bg-sky-600">
+                  {profile?.name.charAt(0).toUpperCase()}
+                </div>
+                <div className="flex flex-col gap-y-1 items-start">
+                  <span className="text-2xl text-[#B0B0B0] Inter font-semibold">
+                    {profile?.name}
+                  </span>
+                  <button
+                    onClick={() => setShowModal(true)}
+                    className="text-[#626262] Inter font-medium text-sm"
+                  >
+                    Изменить профиль
+                  </button>
+                </div>
+              </div>
               <button
-                onClick={() => setShowModal(true)}
-                className="text-[#626262] Inter font-medium text-sm"
+                onClick={handleLogout}
+                className="px-3 py-2 max-h-[38px] rounded-md Inter font-semibold bg-[#393939] text-[#B0B0B0] sm:justify-self-end"
               >
-                Изменить профиль
+                Выйти
               </button>
             </div>
+            {profile && (
+              <button
+                onClick={() =>
+                  setIsSubModalOpen(
+                    profile?.subscription_expires ? false : true
+                  )
+                }
+                className={`mt-4 bg-[#171717] px-6 py-4 rounded-xl hover:opacity-90 transition-opacity w-full ${
+                  profile?.subscription_expires
+                    ? "cursor-default"
+                    : "cursor-pointer"
+                }`}
+              >
+                <span className="gradientText text-[16px] Inter font-bold">
+                  {profile?.subscription_expires
+                    ? `Премиум до ${new Date(
+                        profile.subscription_expires
+                      ).toLocaleDateString()}`
+                    : "Купить премиум"}
+                </span>
+              </button>
+            )}
           </div>
-          <button
-            onClick={handleLogout}
-            className="px-3 py-2 max-h-[38px] rounded-md Inter font-semibold bg-[#393939] text-[#B0B0B0] sm:justify-self-end"
-          >
-            Выйти
-          </button>
-        </div>
+        </>
       )}
 
       {!loadingProfile && showModal && profile && (
@@ -238,7 +309,9 @@ const ProfileSection = () => {
             </AnimatePresence>
           </div>
         ) : (
-          <p className="text-[#BEBEBE]">Нет сохранённых изображений.</p>
+          <p className="text-[#BEBEBE] Inter font-semibold">
+            Нет сохранённых изображений.
+          </p>
         )}
       </div>
 
@@ -289,9 +362,57 @@ const ProfileSection = () => {
             })}
           </div>
         ) : (
-          <p className="text-[#BEBEBE]">Нет доступных сцен для отображения.</p>
+          <p className="text-[#BEBEBE] Inter font-semibold">
+            Нет доступных сцен для отображения.
+          </p>
         )}
       </div>
+      <AnimatePresence>
+        {isSubModalOpen && (
+          <motion.div
+            className="fixed inset-0 flex items-center justify-center z-50"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            {/* бэкдроп с блюром */}
+            <div
+              className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+              onClick={() => setIsSubModalOpen(false)}
+            />
+
+            {/* контент модалки */}
+            <motion.div
+              className="relative bg-[#0D0D0D] rounded-2xl p-8 max-w-sm w-full mx-4"
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.8, opacity: 0 }}
+            >
+              <h3 className="text-2xl Inter font-bold mb-4 text-center text-[#B0B0B0]">
+                Выберите подписку
+              </h3>
+              <div className="flex flex-col gap-3">
+                {[1, 7, 30].map((d) => (
+                  <button
+                    key={d}
+                    onClick={() => handlePurchase(d)}
+                    disabled={purchasing}
+                    className="w-full Inter font-semibold py-3 rounded-lg bg-[#1A1A1A] hover:bg-[#252525] transition-colors"
+                  >
+                    {d === 1 ? "1 день" : `${d} дней`}
+                  </button>
+                ))}
+              </div>
+              <button
+                onClick={() => setIsSubModalOpen(false)}
+                className="absolute top-3 right-3 text-[#626262] hover:text-[#AFAFAF] transition-colors"
+              >
+                ✕
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

@@ -59,6 +59,7 @@ func main() {
 		auth.GET("/profile", handlers.GetProfile)
 		auth.GET("/scenes", handlers.GetProfileScenes)
 		auth.PUT("/edit", handlers.UpdateProfile)
+		auth.POST("/purchase-subscription", handlers.PurchaseSubscription)
 
 	}
 

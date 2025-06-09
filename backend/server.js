@@ -12,7 +12,7 @@ app.use(bodyParser.json());
 const openai = new OpenAI({
   baseURL: "https://openrouter.ai/api/v1",
   apiKey:
-    "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",
+    "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",
   // defaultHeaders: {
   //   'HTTP-Referer': '<YOUR_SITE_URL>', // Optional. Site URL for rankings on openrouter.ai.
   //   'X-Title': '<YOUR_SITE_NAME>', // Optional. Site title for rankings on openrouter.ai.
@@ -35,7 +35,7 @@ app.post("/analyze", async (req, res) => {
 `;
 
     const result = await openai.chat.completions.create({
-      model: "meta-llama/llama-3.3-8b-instruct:free",
+      model: "deepseek/deepseek-r1-0528-qwen3-8b:free",
       messages: [
         {
           role: "user",

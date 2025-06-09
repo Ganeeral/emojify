@@ -46,6 +46,9 @@ func ConnectDB() {
 		if errAuto := db.AutoMigrate(&models.GeneratedImage{}); errAuto != nil {
 			log.Fatalf("Не удалось выполнить AutoMigrate: %v", errAuto)
 		}
+		if errAuto := db.AutoMigrate(&models.Subscription{}); errAuto != nil {
+			log.Fatalf("Не удалось выполнить AutoMigrate: %v", errAuto)
+		}
 
 		DB = db
 		fmt.Println("Успешное подключение к базе данных и миграция выполнена")

@@ -11,6 +11,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 
 	"net/textproto"
 
@@ -48,128 +49,126 @@ type ImageStatusResponse struct {
 ////////////////////////////////////////////////////////////
 
 func GenerateImageAsync(c *gin.Context) {
-	var req GenerateImageRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Неверный формат запроса: " + err.Error()})
-		return
-	}
+    var req GenerateImageRequest
+    if err := c.ShouldBindJSON(&req); err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"error": "Неверный формат запроса: " + err.Error()})
+        return
+    }
 
-	if database.DB == nil {
-		log.Println("GenerateImageAsync: ERROR — database.DB == nil, ConnectDB не был вызван?")
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Database is not initialized"})
-		return
-	}
+    userID := req.UserID
+    now := time.Now()
 
-	apiKey := os.Getenv("FUSION_API_KEY")
-	secretKey := os.Getenv("FUSION_SECRET_KEY")
-	if apiKey == "" || secretKey == "" {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "API ключи FusionBrain не заданы"})
-		return
-	}
+    // ── 0) Проверяем активную подписку ───────────────────────────────────────
+    var sub models.Subscription
+    subErr := database.DB.
+        Where("user_id = ? AND expires_at > ?", userID, now).
+        First(&sub).Error
 
-	// 1) Формируем payload для FusionBrain
-	payload := &bytes.Buffer{}
-	writer := multipart.NewWriter(payload)
+    if subErr != nil {
+        // Нет активной подписки — считаем сегодня сделанные запросы
+        startOfDay := time.Date(
+            now.Year(), now.Month(), now.Day(),
+            0, 0, 0, 0, now.Location(),
+        )
 
-	// Достаём pipeline_id
-	pipelineID := getPipelineID(apiKey, secretKey)
-	if err := writeFormField(writer, "pipeline_id", pipelineID, "text/plain"); err != nil {
-		log.Println("Ошибка при добавлении поля pipeline_id в form-data:", err)
-	}
-	// Составляем параметры генерации (включая style)
-	params := map[string]interface{}{
-		"type":      "GENERATE",
-		"numImages": 1,
-		"width":     req.Width,
-		"height":    req.Height,
-	}
-	// Если задан стиль, добавляем его в запрос
-	if req.Style != "" {
-		params["style"] = req.Style
-	}
+        var usedToday int64
+        database.DB.
+            Model(&models.GeneratedImage{}).
+            Where("user_id = ? AND created_at >= ?", userID, startOfDay).
+            Count(&usedToday)
 
-	// generateParams: только «query»
-	params["generateParams"] = map[string]string{
-		"query": req.Text,
-	}
+        if usedToday >= 1 {
+            c.JSON(http.StatusForbidden, gin.H{"error": "Дневной лимит бесплатной генерации (1 раз) исчерпан. Купите премиум-подписку."})
+            return
+        }
+    }
 
-	// Преобразуем params в JSON
-	paramsJSON, _ := json.Marshal(params)
-	if err := writeFormField(writer, "params", string(paramsJSON), "application/json"); err != nil {
-		log.Println("Ошибка при добавлении поля params в form-data:", err)
-	}
+    // ── 1) Формируем payload для FusionBrain ─────────────────────────────────
+    payload := &bytes.Buffer{}
+    writer := multipart.NewWriter(payload)
 
-	if err := writer.Close(); err != nil {
-		log.Println("Ошибка при закрытии multipart writer:", err)
-	}
+    // Достаём pipeline_id
+    pipelineID := getPipelineID(os.Getenv("FUSION_API_KEY"), os.Getenv("FUSION_SECRET_KEY"))
+    _ = writeFormField(writer, "pipeline_id", pipelineID, "text/plain")
 
-	// 2) Делаем POST запрос к FusionBrain
-	reqFusion, err := http.NewRequest("POST", "https://api-key.fusionbrain.ai/key/api/v1/pipeline/run", payload)
-	if err != nil {
-		log.Println("Не удалось создать HTTP запрос к FusionBrain:", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Не удалось сформировать запрос к FusionBrain"})
-		return
-	}
-	reqFusion.Header.Set("X-Key", "Key "+apiKey)
-	reqFusion.Header.Set("X-Secret", "Secret "+secretKey)
-	reqFusion.Header.Set("Content-Type", writer.FormDataContentType())
+    // Параметры генерации
+    params := map[string]interface{}{
+        "type":         "GENERATE",
+        "numImages":    1,
+        "width":        req.Width,
+        "height":       req.Height,
+        "generateParams": map[string]string{"query": req.Text},
+    }
+    if req.Style != "" {
+        params["style"] = req.Style
+    }
+    paramsJSON, _ := json.Marshal(params)
+    _ = writeFormField(writer, "params", string(paramsJSON), "application/json")
+    _ = writer.Close()
 
-	client := &http.Client{}
-	resp, err := client.Do(reqFusion)
-	if err != nil {
-		log.Println("Ошибка при отправке запроса в FusionBrain:", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка при общении с FusionBrain"})
-		return
-	}
-	defer resp.Body.Close()
+    // ── 2) POST к FusionBrain ────────────────────────────────────────────────
+    apiKey := os.Getenv("FUSION_API_KEY")
+    secretKey := os.Getenv("FUSION_SECRET_KEY")
+    reqFusion, err := http.NewRequest("POST",
+        "https://api-key.fusionbrain.ai/key/api/v1/pipeline/run",
+        payload,
+    )
+    if err != nil {
+        log.Println("Ошибка формирования запроса к FusionBrain:", err)
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Не удалось сформировать запрос к FusionBrain"})
+        return
+    }
+    reqFusion.Header.Set("X-Key", "Key "+apiKey)
+    reqFusion.Header.Set("X-Secret", "Secret "+secretKey)
+    reqFusion.Header.Set("Content-Type", writer.FormDataContentType())
 
-	respBody, _ := io.ReadAll(resp.Body)
-	if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusCreated {
-		log.Printf("FusionBrain вернул статус %d: %s\n", resp.StatusCode, string(respBody))
-		// Пытаемся вернуть из тела JSON-ошибку, если она есть
-		var errMap map[string]interface{}
-		if jsonErr := json.Unmarshal(respBody, &errMap); jsonErr == nil {
-			c.JSON(resp.StatusCode, errMap)
-		} else {
-			c.JSON(resp.StatusCode, gin.H{"error": string(respBody)})
-		}
-		return
-	}
+    resp, err := (&http.Client{}).Do(reqFusion)
+    if err != nil {
+        log.Println("Ошибка при отправке запроса в FusionBrain:", err)
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка при общении с FusionBrain"})
+        return
+    }
+    defer resp.Body.Close()
 
-	// 3) Распарсим ответ FusionBrain и достаём UUID
-	log.Printf("Raw FusionBrain response: %s", string(respBody))
-	var fusionResp FusionResponse
-	if err := json.Unmarshal(respBody, &fusionResp); err != nil {
-		log.Println("Не удалось распарсить ответ FusionBrain:", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка парсинга ответа FusionBrain"})
-		return
-	}
-	log.Printf("Parsed response: %+v", fusionResp)
+    respBody, _ := io.ReadAll(resp.Body)
+    if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusCreated {
+        log.Printf("FusionBrain вернул %d: %s\n", resp.StatusCode, string(respBody))
+        var errMap map[string]interface{}
+        if json.Unmarshal(respBody, &errMap) == nil {
+            c.JSON(resp.StatusCode, errMap)
+        } else {
+            c.JSON(resp.StatusCode, gin.H{"error": string(respBody)})
+        }
+        return
+    }
 
-	// 4) Сразу сохраняем в БД новую запись со статусом PENDING
-	record := models.GeneratedImage{
-		UserID:   req.UserID,
-		Query:    req.Text,
-		Style:    req.Style,
-		Width:    req.Width,
-		Height:   req.Height,
-		UUID:     fusionResp.Uuid,
-		Status:   "PENDING",
-		ImageB64: "",
-	}
-	if err := database.DB.Create(&record).Error; err != nil {
-		log.Println("Ошибка при сохранении GeneratedImage в БД:", err)
-		// Всё равно возвращаем UUID, чтобы клиент мог опрашивать статус
-		c.JSON(http.StatusOK, gin.H{
-			"uuid":    fusionResp.Uuid,
-			"warning": "Не удалось сохранить запись в БД",
-		})
-		return
-	}
+    // ── 3) Берём UUID из ответа ──────────────────────────────────────────────
+    var fusionResp FusionResponse
+    if err := json.Unmarshal(respBody, &fusionResp); err != nil {
+        log.Println("Ошибка парсинга ответа FusionBrain:", err)
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка парсинга ответа FusionBrain"})
+        return
+    }
 
-	// 5) Возвращаем клиенту только UUID
-	c.JSON(http.StatusOK, gin.H{"uuid": fusionResp.Uuid})
+    // ── 4) Сохраняем запись с PENDING ────────────────────────────────────────
+    record := models.GeneratedImage{
+        UserID:   userID,
+        Query:    req.Text,
+        Style:    req.Style,
+        Width:    req.Width,
+        Height:   req.Height,
+        UUID:     fusionResp.Uuid,
+        Status:   "PENDING",
+        ImageB64: "",
+    }
+    if err := database.DB.Create(&record).Error; err != nil {
+        log.Println("Ошибка сохранения GeneratedImage:", err)
+    }
+
+    // ── 5) Отдаём UUID клиенту ───────────────────────────────────────────────
+    c.JSON(http.StatusOK, gin.H{"uuid": fusionResp.Uuid})
 }
+
 
 ////////////////////////////////////////////////////////////
 // 3) Проверка статуса генерации (GET /image-status?uuid=...)

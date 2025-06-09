@@ -28,6 +28,10 @@ const Page = () => {
   const [imgWidth, setImgWidth] = useState<number>(1024);
   const [imgHeight, setImgHeight] = useState<number>(1024);
   const [imgStyle, setImgStyle] = useState<string>("DEFAULT");
+  const [error, setError] = useState(false);
+
+  const [isSubModalOpen, setIsSubModalOpen] = useState(false);
+  const [purchasing, setPurchasing] = useState(false);
 
   const handleGenerateMore = () => {
     setScene("");
@@ -35,6 +39,7 @@ const Page = () => {
     setImageURL("");
     setShowForm(true);
     setShowResult(false);
+    setError(false);
   };
 
   useEffect(() => {
@@ -58,6 +63,7 @@ const Page = () => {
     setLoading(true);
     setShowForm(false);
     setShowResult(false);
+    setError(false);
 
     try {
       let response;
@@ -70,6 +76,7 @@ const Page = () => {
         if (!response.ok) throw new Error("Ошибка анализа");
         const data = await response.json();
         setEmotion(data.emotion);
+        setShowResult(true);
       } else {
         // response = await fetch(
         //   "https://emojify-backend.cloudpub.ru/generate-image",
@@ -116,17 +123,51 @@ const Page = () => {
 
         if (!imageUrl) throw new Error("Изображение не готово");
         setImageURL(imageUrl);
+        setShowResult(true);
       }
     } catch {
-      toast.error("Произошла ошибка! Попробуйте снова.");
+      toast.error(
+        "Дневной лимит бесплатной генерации исчерпан. Купите премиум-подписку."
+      );
+      setError(true);
       setShowForm(true);
+      // setShowResult(false);
     } finally {
       setLoading(false);
-      setShowResult(true);
     }
   };
 
-  console.log(scene);
+  const handlePurchase = async (days: number) => {
+    if (purchasing) return;
+    setPurchasing(true);
+    const token = localStorage.getItem("authToken");
+    try {
+      const res = await fetch(
+        "https://emojify-backend.cloudpub.ru/purchase-subscription",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ days }),
+        }
+      );
+      if (!res.ok) throw new Error();
+      const data = await res.json();
+      toast.success(
+        `Премиум активирован до ${new Date(
+          data.expires_at
+        ).toLocaleDateString()}`
+      );
+      setIsSubModalOpen(false);
+      setError(false);
+    } catch {
+      toast.error("Не удалось оформить подписку");
+    } finally {
+      setPurchasing(false);
+    }
+  };
 
   return (
     <main className="h-full">
@@ -214,9 +255,27 @@ const Page = () => {
                 type="submit"
                 className="bg-[#171717] px-7 py-4 mobile:py-6 z-10 rounded-3xl"
               >
-                <p className="gradientText text-[22px]">Emojify</p>
+                <p className="gradientText text-[22px] Inter font-semibold">
+                  Анимоджи
+                </p>
               </button>
             </form>
+
+            {error && (
+              <div className="mt-6 flex flex-col items-center">
+                <p className="text-red-600 Inter font-semibold text-center">
+                  Дневной лимит бесплатной генерации исчерпан.
+                </p>
+                <button
+                  onClick={() => setIsSubModalOpen(true)}
+                  className="mt-4 bg-[#171717] px-6 py-4 rounded-xl hover:opacity-90 transition-opacity"
+                >
+                  <span className="gradientText text-[16px] Inter font-bold">
+                    Купить подписку
+                  </span>
+                </button>
+              </div>
+            )}
           </div>
         )}
 
@@ -286,6 +345,54 @@ const Page = () => {
           </div>
         )}
       </div>
+
+      <AnimatePresence>
+        {isSubModalOpen && (
+          <motion.div
+            className="fixed inset-0 flex items-center justify-center z-50"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            {/* бэкдроп с блюром */}
+            <div
+              className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+              onClick={() => setIsSubModalOpen(false)}
+            />
+
+            {/* контент модалки */}
+            <motion.div
+              className="relative bg-[#0D0D0D] rounded-2xl p-8 max-w-sm w-full mx-4"
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.8, opacity: 0 }}
+            >
+              <h3 className="text-2xl Inter font-bold mb-4 text-center text-[#B0B0B0]">
+                Выберите подписку
+              </h3>
+              <div className="flex flex-col gap-3">
+                {[1, 7, 30].map((d) => (
+                  <button
+                    key={d}
+                    onClick={() => handlePurchase(d)}
+                    disabled={purchasing}
+                    className="w-full Inter font-semibold py-3 rounded-lg bg-[#1A1A1A] hover:bg-[#252525] transition-colors"
+                  >
+                    {d === 1 ? "1 день" : `${d} дней`}
+                  </button>
+                ))}
+              </div>
+              <button
+                onClick={() => setIsSubModalOpen(false)}
+                className="absolute top-3 right-3 text-[#626262] hover:text-[#AFAFAF] transition-colors"
+              >
+                ✕
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <ToastContainer position="top-right" autoClose={1000} theme="dark" />
       <ImageOptionsModal
         isOpen={isModalOpen}
