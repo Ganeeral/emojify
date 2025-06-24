@@ -95,15 +95,6 @@ const Header: React.FC<HeaderProps> = ({ isScrolled, activeSection }) => {
                       Профиль
                     </Link>
                   </li>
-                  <li className="border-b border-gray-600">
-                    <Link
-                      href="/admin"
-                      className="block px-6 Inter font-bold py-3 text-white hover:bg-[#3c3a3b] transition-all"
-                      onClick={() => setIsMenuOpen(false)}
-                    >
-                      Панель администратора
-                    </Link>
-                  </li>
                   <li>
                     <button
                       className="block w-full Inter font-bold text-left px-6 py-3 text-white hover:bg-[#3c3a3b] transition-all"

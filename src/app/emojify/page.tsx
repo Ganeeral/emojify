@@ -202,7 +202,7 @@ const Page = () => {
 
                 <button
                   onClick={() => setMode("animation")}
-                  className={`relative z-10 px-6 py-2 rounded-[999px] Inter font-bold transition-colors duration-300 ${
+                  className={`relative z-10 px-6 py-2 rounded-[999px] Inter font-bold text-[10px] text-nowrap mobile:text-[14px] transition-colors duration-300 ${
                     mode === "animation" ? "text-[#1A1A1A]" : "text-[#AFAFAF]"
                   }`}
                 >
@@ -210,7 +210,7 @@ const Page = () => {
                 </button>
                 <button
                   onClick={() => setMode("image")}
-                  className={`relative z-10 px-6 py-2 rounded-[999px] Inter font-bold transition-colors duration-300 ${
+                  className={`relative z-10 px-6 py-2 rounded-[999px] text-[10px] text-nowrap Inter font-bold mobile:text-[14px] transition-colors duration-300 ${
                     mode === "image" ? "text-[#1A1A1A]" : "text-[#AFAFAF]"
                   }`}
                 >
